@@ -11,10 +11,12 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Supplier;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 import se.bjurr.violations.comments.bitbucketserver.lib.client.BitbucketServerClient;
 import se.bjurr.violations.comments.bitbucketserver.lib.client.model.BitbucketServerComment;
 import se.bjurr.violations.comments.bitbucketserver.lib.client.model.BitbucketServerDiff;
 import se.bjurr.violations.comments.bitbucketserver.lib.client.model.BitbucketServerDiffResponse;
+import se.bjurr.violations.comments.bitbucketserver.lib.client.model.BitbucketServerTask;
 import se.bjurr.violations.comments.bitbucketserver.lib.client.model.DiffDestination;
 import se.bjurr.violations.comments.bitbucketserver.lib.client.model.DiffHunk;
 import se.bjurr.violations.comments.bitbucketserver.lib.client.model.Line;
@@ -135,10 +137,48 @@ public class BitbucketServerCommentsProvider implements CommentsProvider {
       try {
         commentId = Integer.valueOf(comment.getIdentifier());
         commentVersion = Integer.valueOf(comment.getSpecifics().get(0));
+
+        BitbucketServerComment bitbucketServerComment = client.pullRequestComment((long) commentId);
+        removeAllSubCommentsAndTasksOfComment(bitbucketServerComment);
+
         client.pullRequestRemoveComment(commentId, commentVersion);
       } catch (final Exception e) {
         violationsLogger.log(
             SEVERE, "Was unable to remove comment " + commentId + " " + commentVersion, e);
+      }
+    }
+  }
+
+  private void removeAllTasksOfComment(final BitbucketServerComment bitbucketServerComment) {
+    List<BitbucketServerTask> bitbucketServerTasks = bitbucketServerComment.getTasks();
+
+    for (BitbucketServerTask bitbucketServerTask : bitbucketServerTasks) {
+      client.removeTask(bitbucketServerTask);
+    }
+  }
+
+  private void removeAllSubCommentsAndTasksOfComment(
+      final BitbucketServerComment bitbucketServerComment) {
+    Stack<BitbucketServerComment> stack = new Stack<>();
+    stack.push(bitbucketServerComment);
+
+    while (!stack.isEmpty()) {
+      BitbucketServerComment top = stack.peek();
+
+      if (top.getSubComments().isEmpty()) {
+        top = stack.pop();
+
+        Integer id = top.getId();
+        Integer version = top.getVersion();
+        client.pullRequestRemoveComment(id, version);
+        removeAllTasksOfComment(top);
+
+      } else {
+
+        for (BitbucketServerComment subComment : top.getSubComments()) {
+          stack.push(subComment);
+          top.getSubComments().remove(subComment);
+        }
       }
     }
   }
