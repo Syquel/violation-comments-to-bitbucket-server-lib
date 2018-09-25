@@ -9,14 +9,14 @@ public class BitbucketServerComment {
   private final String text;
   private final Integer version;
   private List<BitbucketServerTask> tasks;
-  private List<BitbucketServerComment> subComments;
+  private List<BitbucketServerComment> comments;
 
   public BitbucketServerComment() {
     this.id = null;
     this.text = null;
     this.version = null;
     this.tasks = null;
-    this.subComments = null;
+    this.comments = null;
   }
 
   public BitbucketServerComment(Integer version, String text, Integer id) {
@@ -24,7 +24,7 @@ public class BitbucketServerComment {
     this.text = text;
     this.id = id;
     this.tasks = new ArrayList<>();
-    this.subComments = new ArrayList<>();
+    this.comments = new ArrayList<>();
   }
 
   public Integer getId() {
@@ -43,15 +43,15 @@ public class BitbucketServerComment {
     return tasks;
   }
 
-  public List<BitbucketServerComment> getSubComments() {
-    return subComments;
+  public List<BitbucketServerComment> getComments() {
+    return comments;
   }
 
   public void setTasks(List<BitbucketServerTask> tasks) {
     this.tasks = tasks;
   }
 
-  public void setSubComments(List<BitbucketServerComment> subComments) {
-    this.subComments = subComments;
+  public void setComments(List<BitbucketServerComment> comments) {
+    this.comments = comments;
   }
 }

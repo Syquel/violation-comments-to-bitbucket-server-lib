@@ -1,6 +1,7 @@
 package se.bjurr.violations.comments.bitbucketserver.lib.client.model;
 
 public class BitbucketServerTask {
+
   private final Integer id;
   private final String text;
 

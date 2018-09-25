@@ -230,7 +230,6 @@ public class BitbucketServerClient {
   }
 
   public void pullRequestRemoveComment(final Integer commentId, final Integer commentVersion) {
-
     doInvokeUrl(
         getBitbucketServerPullRequestBase()
             + "/comments/"
@@ -306,7 +305,7 @@ public class BitbucketServerClient {
     BitbucketServerComment constructedComment = new BitbucketServerComment(version, text, id);
 
     constructedComment.setTasks(bitbucketServerTasks);
-    constructedComment.setSubComments(bitbucketServerSubComments);
+    constructedComment.setComments(bitbucketServerSubComments);
 
     return constructedComment;
   }
